@@ -1,0 +1,96 @@
+# FinancialLLM — LoRA fine-tuning config for Mistral-7B-Instruct-v0.2
+# Run: python training/src/train.py --config training/configs/lora_mistral7b.yaml
+
+# ── Model ─────────────────────────────────────────────────────────────────────
+model:
+  base_model_id: "mistralai/Mistral-7B-Instruct-v0.2"
+  torch_dtype: "bfloat16"               # bf16 for A100/H100; use float16 on V100
+  trust_remote_code: true
+  attn_implementation: "flash_attention_2"   # Requires flash-attn 2.x
+
+# ── QLoRA / quantisation ───────────────────────────────────────────────────────
+quantization:
+  load_in_4bit: true
+  bnb_4bit_compute_dtype: "bfloat16"
+  bnb_4bit_use_double_quant: true        # Nested quantisation saves ~0.4 bits/param
+  bnb_4bit_quant_type: "nf4"            # NormalFloat4 — optimal for normally distributed weights
+
+# ── LoRA adapter ──────────────────────────────────────────────────────────────
+lora:
+  r: 64                                  # Rank — balance between capacity and #params
+  lora_alpha: 128                        # Scaling = alpha/r = 2.0
+  lora_dropout: 0.05
+  bias: "none"
+  task_type: "CAUSAL_LM"
+  target_modules:                        # Mistral attention projections + MLP gates
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  modules_to_save: []                    # No extra modules saved to full precision
+  inference_mode: false
+
+# ── Dataset ───────────────────────────────────────────────────────────────────
+data:
+  train_file: "training/data/splits/train.jsonl"
+  eval_file:  "training/data/splits/val.jsonl"
+  max_seq_length: 4096                   # Max tokens per sample
+  text_column: "text"                    # Field containing formatted prompt+completion
+  packing: true                          # Pack short sequences for efficiency
+  num_workers: 4
+
+# ── Training hyperparameters ──────────────────────────────────────────────────
+training:
+  output_dir: "./checkpoints/mistral-finance-v1"
+  num_train_epochs: 3
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 8        # Effective batch = 2 * 8 = 16
+  gradient_checkpointing: true          # Saves ~60% GPU memory
+  learning_rate: 2.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.03                    # 3% warmup
+  weight_decay: 0.001
+  optim: "paged_adamw_32bit"            # Paged AdamW for reduced memory
+  bf16: true
+  tf32: true                            # A100 TF32 cores
+  max_grad_norm: 1.0
+  dataloader_drop_last: true
+
+  # Evaluation
+  eval_strategy: "steps"
+  eval_steps: 100
+  save_strategy: "steps"
+  save_steps: 100
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_rouge_l"
+  greater_is_better: true
+
+  # Logging
+  logging_steps: 10
+  report_to: ["wandb"]
+  run_name: "mistral-finance-lora-v1"
+
+  # Misc
+  seed: 42
+  group_by_length: true                 # Group similar-length samples → fewer padding tokens
+  remove_unused_columns: false
+  push_to_hub: false
+
+# ── Generation (used during eval) ─────────────────────────────────────────────
+generation:
+  max_new_tokens: 512
+  temperature: 0.1
+  top_p: 0.9
+  do_sample: true
+  repetition_penalty: 1.1
+
+# ── W&B ───────────────────────────────────────────────────────────────────────
+wandb:
+  project: "financial-llm"
+  entity: ""                            # Set your W&B entity
+  tags: ["mistral-7b", "lora", "finance", "qlora"]

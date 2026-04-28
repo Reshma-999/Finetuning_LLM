@@ -1,0 +1,72 @@
+# ── Core ML ────────────────────────────────────────────────────────────────────
+torch==2.3.0
+torchvision==0.18.0
+transformers==4.41.2
+datasets==2.19.2
+peft==0.11.1
+trl==0.9.4
+bitsandbytes==0.43.1
+accelerate==0.30.1
+sentencepiece==0.2.0
+tokenizers==0.19.1
+
+# ── vLLM inference ─────────────────────────────────────────────────────────────
+vllm==0.4.2
+
+# ── Evaluation metrics ─────────────────────────────────────────────────────────
+rouge-score==0.1.2
+bert-score==0.3.13
+nltk==3.8.1
+sacrebleu==2.4.2
+
+# ── FastAPI inference server ───────────────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+pydantic==2.7.1
+pydantic-settings==2.2.1
+httpx==0.27.0
+sse-starlette==2.1.0
+
+# ── Data pipeline ──────────────────────────────────────────────────────────────
+sec-api==1.0.19
+requests==2.32.2
+beautifulsoup4==4.12.3
+lxml==5.2.2
+tiktoken==0.7.0
+datasketch==1.6.4       # MinHash LSH deduplication
+langdetect==1.0.9
+pandas==2.2.2
+pyarrow==16.1.0
+
+# ── Azure Blob ─────────────────────────────────────────────────────────────────
+azure-storage-blob==12.20.0
+azure-identity==1.17.1
+
+# ── AWS ────────────────────────────────────────────────────────────────────────
+boto3==1.34.131
+mangum==0.17.0          # ASGI adapter for Lambda
+
+# ── Observability ──────────────────────────────────────────────────────────────
+wandb==0.17.1
+prometheus-client==0.20.0
+loguru==0.7.2
+
+# ── Utilities ──────────────────────────────────────────────────────────────────
+python-dotenv==1.0.1
+pyyaml==6.0.1
+rich==13.7.1
+typer==0.12.3
+tqdm==4.66.4
+numpy==1.26.4
+scipy==1.13.1
+openai==1.30.1          # GPT-3.5 baseline
+
+# ── Testing ────────────────────────────────────────────────────────────────────
+pytest==8.2.1
+pytest-asyncio==0.23.7
+httpx==0.27.0
+
+# ── Dev ────────────────────────────────────────────────────────────────────────
+black==24.4.2
+ruff==0.4.7
+mypy==1.10.0

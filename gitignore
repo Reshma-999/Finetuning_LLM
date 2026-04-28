@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+env/
+
+# Model weights (too large for git)
+checkpoints/
+models/
+*.bin
+*.safetensors
+*.pt
+*.pth
+adapter_model.bin
+adapter_model.safetensors
+
+# Data
+training/data/raw/
+training/data/splits/*.jsonl
+training/data/processed/
+
+# Evaluation results
+evaluation/results/
+
+# Env
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+logs/
+wandb/
+
+# macOS
+.DS_Store
+
+# Lambda build artifacts
+deploy/lambda/*.zip
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Benchmark results
+benchmark_results.json
